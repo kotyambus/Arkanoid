@@ -16,16 +16,25 @@ public:
 	// Sets default values for this actor's properties
 	ABall();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
-	USceneComponent* SceneComponent = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Components")
-	UStaticMeshComponent* StaticMesh = nullptr;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Parameters")
-	float Speed;
 
 protected:
 	// Called when the game starts or when spawned
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	UStaticMeshComponent* StaticMesh = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameters")
+	float Speed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Parameters")
+	FVector Direction;
+
 	virtual void BeginPlay() override;
+	virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, 
+		UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, 
+		FVector NormalImpulse, const FHitResult& Hit) override;
+
+	void Move(float DeltaTime);
+
+
 
 public:	
 	// Called every frame
