@@ -2,6 +2,9 @@
 
 
 #include "Core/MyTestPawn.h"
+#include "InputMappingContext.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
 
 // Sets default values
 AMyTestPawn::AMyTestPawn()
@@ -9,6 +12,15 @@ AMyTestPawn::AMyTestPawn()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	SetRootComponent(StaticMesh);
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("My Static Mesh"));
+
+	Speed = 500;
+}
+
+void AMyTestPawn::MovingInput()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "Pressed!");
 }
 
 // Called when the game starts or when spawned
@@ -30,5 +42,16 @@ void AMyTestPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(InputMapping, 0);
+		}
+	}
+	if (UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		Input->BindAction(Moving, ETriggerEvent::Triggered, this, &AMyTestPawn::MovingInput);
+	}
 }
 
