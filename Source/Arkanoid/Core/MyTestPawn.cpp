@@ -14,13 +14,27 @@ AMyTestPawn::AMyTestPawn()
 
 	SetRootComponent(StaticMesh);
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("My Static Mesh"));
+	Arrow = CreateDefaultSubobject<UArrowComponent>(TEXT("Ok"));
+	Arrow->SetupAttachment(StaticMesh);
 
 	Speed = 500;
 }
 
-void AMyTestPawn::MovingInput()
+void AMyTestPawn::MovingInput(const FInputActionValue& Value)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "Pressed!");
+	float Direction = Value.Get<float>();
+	AddActorWorldOffset(FVector(0, Direction, 0) * Speed, true);
+}
+
+void AMyTestPawn::SpawnBall()
+{
+	FVector SpawnLocation = Arrow->GetComponentLocation();
+	FRotator SpawnRotation = Arrow->GetComponentRotation();
+
+	auto SpawnedBall = GetWorld()->SpawnActor<ABall>(BallRef, SpawnLocation, SpawnRotation);
+	SpawnedBall->SetOwner(this);
+
+
 }
 
 // Called when the game starts or when spawned
@@ -52,6 +66,8 @@ void AMyTestPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	if (UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		Input->BindAction(Moving, ETriggerEvent::Triggered, this, &AMyTestPawn::MovingInput);
+		Input->BindAction(Spawn, ETriggerEvent::Started, this, &AMyTestPawn::SpawnBall);
+
 	}
 }
 
